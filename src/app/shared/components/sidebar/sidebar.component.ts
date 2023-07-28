@@ -10,8 +10,12 @@ export class SidebarComponent {
 
   constructor(private gifsService: GifsService){}
 
-  get tags(){
+  get tags(): string[] {
     return this.gifsService.tagsHistory; 
   }
 
+  searchTag( tag: string) {
+    console.log(tag);
+    this.gifsService.searchTag( tag );
+  }
 }

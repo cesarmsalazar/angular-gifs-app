@@ -10,14 +10,17 @@ export class GifsService {
   private _tagsHistory: string[] = [];
   private serviceUrl: string = 'https://jsonplaceholder.typicode.com'
 
-  constructor( private http: HttpClient ) { }
+  constructor( private http: HttpClient ) { 
+    this.loadLocalStorage();
+    console.log('Gifs Service Ready');
+   }
   
   get tagsHistory() {
     return [...this._tagsHistory]
   }
 
   private organizeHistory(tag: string){
-    tag = tag.toLowerCase();
+    //tag = tag.toLowerCase();
 
     if (this._tagsHistory.includes(tag)) {  // si incluye el tag entonces lo elimina 
       this._tagsHistory = this._tagsHistory.filter( (oldTag => oldTag !== tag) ); // se queda solo con los distintos a tag
@@ -25,6 +28,23 @@ export class GifsService {
 
     this._tagsHistory.unshift(tag); // agrega el eliminado
     this._tagsHistory = this._tagsHistory.splice(0, 10);   // muestra solo los 10 primeros
+    this.saveLocalStorage();
+  }
+
+  private saveLocalStorage():void{
+    localStorage.setItem('history', JSON.stringify( this._tagsHistory ))
+  }
+
+  private loadLocalStorage():void{
+    if ( !localStorage.getItem('history') ) return;
+
+    this._tagsHistory = JSON.parse( localStorage.getItem('history')! );
+    this.LoadFirstElement();
+  }
+
+  private LoadFirstElement():void{
+    if ( !localStorage.getItem('history') ) return;
+    this.searchTag(this._tagsHistory[0])
 
   }
 
@@ -40,16 +60,24 @@ export class GifsService {
       }); */
 
     const params = new HttpParams()   // mejor metodo 
+      .set('name', tag)
     //  .set('id', 5)
     //  .set('limit', '3')
       
-    this.http.get<SearchResponse>(`${ this.serviceUrl }/users`, { params })
+    this.http.get<Gif[]>(`${ this.serviceUrl }/users`, { params })
       .subscribe( resp => {
 
-        this.gifList = resp.data;
+        this.gifList = resp;
         //console.log({gifs: this.gifList});
         console.log(resp);
         
       })
   }
 }
+
+/* 
+Leanne Graham
+Ervin Howell
+Chelsey Dietrich
+
+ */
